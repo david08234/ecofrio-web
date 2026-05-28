@@ -42,6 +42,7 @@ $vista = $_GET['vista'] ?? 'home';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EcoFrío - Módulo Logístico Base</title>
+    <link rel="stylesheet" href="assets/css/estilos.css">
 </head>
 <body>
     <header>
@@ -72,7 +73,6 @@ $vista = $_GET['vista'] ?? 'home';
             case 'home':
             default:
                 echo "<h2>Panel de Control Principal</h2>";
-                echo "<p>Estructura MVC de la base de datos <code>ecofrio_db</code> lista y securizada contra inyecciones.</p>";
                 break;
         }
         ?>

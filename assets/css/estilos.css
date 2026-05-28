@@ -1,0 +1,173 @@
+/* ================= VARIABLES CORPORATIVAS ================= */
+:root {
+    --azul-noche: #0B132B;
+    --azul-hielo: #1C2541;
+    --cian-frio: #00B4D8;
+    --verde-eco: #2ECC71;
+    --texto-blanco: #F8F9FA;
+    --texto-gris: #ADB5BD;
+    --borde-cristal: rgba(255, 255, 255, 0.1);
+}
+
+/* ================= ESTILOS GLOBALES ================= */
+body {
+    background: linear-gradient(135deg, var(--azul-noche), var(--azul-hielo));
+    background-attachment: fixed;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--texto-blanco);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+/* ================= HEADER Y NAVEGACION ================= */
+header {
+    background-color: rgba(15, 32, 39, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 15px 20px;
+    text-align: center;
+    border-bottom: 1px solid var(--borde-cristal);
+}
+
+header h1 {
+    margin: 0 0 10px 0;
+    font-size: 22px;
+    color: var(--texto-blanco);
+}
+
+nav a {
+    color: var(--texto-gris);
+    text-decoration: none;
+    margin: 0 15px;
+    font-weight: 500;
+    font-size: 14px;
+    transition: color 0.3s;
+}
+
+nav a:hover {
+    color: var(--texto-blanco);
+}
+
+hr { 
+    display: none; 
+}
+
+/* ================= CONTENEDOR PRINCIPAL ================= */
+main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+    min-height: calc(100vh - 100px); 
+}
+
+/* ================= TARJETA FLOTANTE (FORMULARIOS) ================= */
+.contenedor-flotante {
+    background-color: rgba(28, 37, 65, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--borde-cristal);
+    border-radius: 15px;
+    padding: 40px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.contenedor-flotante h2, 
+.contenedor-flotante h3 {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--texto-blanco);
+    border-bottom: 2px solid;
+    border-image: linear-gradient(to right, var(--cian-frio), var(--verde-eco)) 1;
+    padding-bottom: 10px;
+}
+
+/* ================= ELEMENTOS DEL FORMULARIO ================= */
+form { 
+    text-align: left; 
+}
+
+label {
+    display: block;
+    font-size: 13px;
+    color: var(--texto-gris);
+    margin-bottom: 5px;
+    margin-top: 15px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+select {
+    width: 100%;
+    padding: 12px 15px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: var(--texto-blanco);
+    box-sizing: border-box;
+    font-family: inherit;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+select option {
+    background-color: var(--azul-hielo);
+    color: var(--texto-blanco);
+}
+
+input:focus, 
+select:focus {
+    outline: none;
+    border-color: var(--cian-frio);
+    background-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 10px rgba(0, 180, 216, 0.3);
+}
+
+/* ================= BOTON ECO-FRIO ================= */
+button[type="submit"],
+input[type="submit"] {
+    width: 100%;
+    padding: 14px;
+    margin-top: 30px;
+    background: linear-gradient(90deg, var(--cian-frio), var(--verde-eco));
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+button[type="submit"]:hover,
+input[type="submit"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(46, 204, 113, 0.3);
+}
+
+/* ================= MENSAJES DE ESTADO ================= */
+.mensaje-error { 
+    color: #ff5252; 
+    font-size: 14px; 
+    margin-bottom: 15px; 
+    text-align: center;
+}
+
+.mensaje-exito { 
+    color: var(--verde-eco); 
+    font-size: 14px; 
+    margin-bottom: 15px; 
+    text-align: center;
+}
