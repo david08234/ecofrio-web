@@ -1,31 +1,81 @@
 <?php
-declare(strict_types=1);
+require_once "config/conexion.php";
 require_once "modelos/producto.php";
 
 class ProductoController {
-    public function registrar(): void {
-        if ($_SERVER["REQUEST_METHOD"] === "POST" && ($_POST['action'] ?? '') === 'guardar_producto') {
+    private $db;
+    private $producto;
+
+    public function __construct() {
+        $this->db = (new Conexion())->conectar();
+        $this->producto = new Producto($this->db);
+    }
+
+    public function listar() {
+        $resultado = $this->producto->obtenerTodos();
+        $productos = $resultado->fetchAll(PDO::FETCH_ASSOC);
+        require_once "Vistas/listar_productos.php";
+    }
+
+    public function registrar() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $this->producto->nombre = $_POST['nombre'];
+            $this->producto->categoria = $_POST['categoria'];
+            $this->producto->precio = $_POST['precio'];
+            $this->producto->stock = $_POST['stock'];
             
-            $nombre = isset($_POST['nombre_producto']) ? trim(htmlspecialchars($_POST['nombre_producto'], ENT_QUOTES, 'UTF-8')) : '';
-            $categoria = isset($_POST['categoria']) ? trim(htmlspecialchars($_POST['categoria'], ENT_QUOTES, 'UTF-8')) : null;
-            if ($categoria === '') { $categoria = null; }
-
-            if ($nombre === '') {
-                $_SESSION['error'] = "Nombre de producto requerido.";
-                header("Location: index.php?vista=crear_producto"); exit();
+            if ($this->producto->crear()) {
+                $_SESSION['mensaje'] = 'Producto creado correctamente.';
+                header("Location: index.php?vista=listar_productos");
+                exit();
             }
 
-            $precio = isset($_POST['precio_venta']) ? filter_var($_POST['precio_venta'], FILTER_VALIDATE_FLOAT) : false;
-            $stock = isset($_POST['stock']) ? filter_var($_POST['stock'], FILTER_VALIDATE_INT) : false;
-
-            if ($precio === false || $precio < 0 || $stock === false || $stock < 0) {
-                $_SESSION['error'] = "Precio y stock deben ser numéricos positivos.";
-                header("Location: index.php?vista=crear_producto"); exit();
-            }
-
-            $prod = new Producto(null, $nombre, $categoria, $precio, $stock);
-            $_SESSION['mensaje'] = "Producto '" . $prod->obtenerNombre() . "' validado correctamente.";
-            header("Location: index.php?vista=crear_producto"); exit();
+            $_SESSION['error'] = 'No fue posible crear el producto.';
+            header("Location: index.php?vista=crear_producto");
+            exit();
         }
     }
+
+    public function mostrarCrear() {
+        require_once "Vistas/crear_producto.php";
+    }
+
+    public function mostrarEditar($id) {
+        $datosProducto = $this->producto->obtenerPorId($id);
+        if ($datosProducto) {
+            require_once "Vistas/editar_producto.php";
+        } else {
+            echo "Producto no encontrado.";
+        }
+    }
+
+    public function actualizar() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $this->producto->id_producto = $_POST['id_producto'];
+            $this->producto->nombre = $_POST['nombre'];
+            $this->producto->categoria = $_POST['categoria'];
+            $this->producto->precio = $_POST['precio'];
+            $this->producto->stock = $_POST['stock'];
+
+            if ($this->producto->actualizar()) {
+                $_SESSION['mensaje'] = 'Producto actualizado correctamente.';
+                header("Location: index.php?vista=listar_productos");
+                exit();
+            }
+            $_SESSION['error'] = 'No fue posible actualizar el producto.';
+            header("Location: index.php?vista=editar_producto&id=" . $this->producto->id_producto);
+            exit();
+        }
+    }
+
+    public function eliminar($id) {
+        if ($this->producto->eliminar($id)) {
+            $_SESSION['mensaje'] = 'Producto eliminado.';
+        } else {
+            $_SESSION['error'] = 'No fue posible eliminar el producto.';
+        }
+        header("Location: index.php?vista=listar_productos");
+        exit();
+    }
 }
+?>

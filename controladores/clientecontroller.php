@@ -1,25 +1,70 @@
 <?php
-declare(strict_types=1);
+require_once "config/conexion.php";
 require_once "modelos/cliente.php";
 
 class ClienteController {
-    public function registrar(): void {
-        if ($_SERVER["REQUEST_METHOD"] === "POST" && ($_POST['action'] ?? '') === 'guardar_cliente') {
-            
-            $razon_social = isset($_POST['razon_social']) ? trim(htmlspecialchars($_POST['razon_social'], ENT_QUOTES, 'UTF-8')) : '';
-            $nit = isset($_POST['nit']) ? trim(htmlspecialchars($_POST['nit'], ENT_QUOTES, 'UTF-8')) : '';
-            $telefono = isset($_POST['telefono']) ? trim(htmlspecialchars($_POST['telefono'], ENT_QUOTES, 'UTF-8')) : null;
+    private $db;
+    private $cliente;
 
-            if ($telefono === '') { $telefono = null; }
+    public function __construct() {
+        $this->db = (new Conexion())->conectar();
+        $this->cliente = new Cliente($this->db);
+    }
 
-            if ($razon_social === '' || $nit === '') {
-                $_SESSION['error'] = "Razón Social y NIT son requeridos.";
-                header("Location: index.php?vista=crear_cliente"); exit();
+    public function listar() {
+        $resultado = $this->cliente->obtenerTodos();
+        $clientes = $resultado->fetchAll(PDO::FETCH_ASSOC);
+        require_once "Vistas/listar_clientes.php";
+    }
+
+    public function mostrarCrear() {
+        require_once "Vistas/crear_cliente.php";
+    }
+
+    public function registrar() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $this->cliente->razon_social = $_POST['razon_social'];
+            $this->cliente->nit = $_POST['nit'];
+            $this->cliente->telefono = $_POST['telefono'];
+
+            if ($this->cliente->crear()) {
+                header("Location: index.php?vista=listar_clientes");
+                exit();
             }
 
-            $cliente = new Cliente(null, $razon_social, $nit, $telefono);
-            $_SESSION['mensaje'] = "Cliente '" . $cliente->obtenerRazonSocial() . "' verificado.";
-            header("Location: index.php?vista=crear_cliente"); exit();
+            echo "Error al registrar el cliente.";
         }
     }
+
+    public function mostrarEditar($id) {
+        $datosCliente = $this->cliente->obtenerPorId($id);
+        if ($datosCliente) {
+            require_once "Vistas/editar_cliente.php";
+        } else {
+            echo "Cliente no encontrado.";
+        }
+    }
+
+    public function actualizar() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $this->cliente->id_cliente = $_POST['id_cliente'];
+            $this->cliente->razon_social = $_POST['razon_social'];
+            $this->cliente->nit = $_POST['nit'];
+            $this->cliente->telefono = $_POST['telefono'];
+
+            if ($this->cliente->actualizar()) {
+                header("Location: index.php?vista=listar_clientes");
+                exit();
+            }
+
+            echo "Error al actualizar el cliente.";
+        }
+    }
+
+    public function eliminar($id) {
+        $this->cliente->eliminar($id);
+        header("Location: index.php?vista=listar_clientes");
+        exit();
+    }
 }
+?>

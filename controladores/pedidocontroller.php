@@ -1,47 +1,82 @@
 <?php
-declare(strict_types=1);
+require_once "config/conexion.php";
 require_once "modelos/pedido.php";
+require_once "modelos/cliente.php";
+require_once "modelos/producto.php";
 
 class PedidoController {
-    public function registrar(): void {
-        if ($_SERVER["REQUEST_METHOD"] === "POST" && ($_POST['action'] ?? '') === 'guardar_pedido') {
+    private $db;
+    private $pedido;
+
+    public function __construct() {
+        $this->db = (new Conexion())->conectar();
+        $this->pedido = new Pedido($this->db);
+    }
+
+    // Cargar formulario con datos
+    public function mostrarCrear() {
+        // Obtenemos catálogos para los select
+        $modeloCliente = new Cliente($this->db);
+        $clientes = $modeloCliente->obtenerTodos()->fetchAll(PDO::FETCH_ASSOC);
+
+        $modeloProducto = new Producto($this->db);
+        $productos = $modeloProducto->obtenerTodos()->fetchAll(PDO::FETCH_ASSOC);
+
+        require_once "Vistas/crear_pedido.php";
+    }
+
+    // Procesar transacción
+    public function registrar() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $id_cliente = $_POST['id_cliente'];
+            $direccion = $_POST['direccion_entrega'];
             
-            $id_cliente = filter_var($_POST['id_cliente'] ?? null, FILTER_VALIDATE_INT);
-            $id_vendedor = filter_var($_POST['id_vendedor'] ?? null, FILTER_VALIDATE_INT);
-            $fecha = isset($_POST['fecha_pedido']) ? trim($_POST['fecha_pedido']) : '';
-            $direccion = isset($_POST['direccion_entrega']) ? trim(htmlspecialchars($_POST['direccion_entrega'], ENT_QUOTES, 'UTF-8')) : '';
-            $total = filter_var($_POST['monto_total'] ?? null, FILTER_VALIDATE_FLOAT);
-
-            if (!$id_cliente || !$id_vendedor || $fecha === '' || $direccion === '' || $total === false || $total < 0) {
-                $_SESSION['error'] = "Cabecera de orden incompleta.";
-                header("Location: index.php?vista=crear_pedido"); exit();
+            // Determinar id_vendedor: preferir sesión, si no existe tomar el primer usuario disponible
+            session_start();
+            if (!empty($_SESSION['id_usuario'])) {
+                $id_vendedor = $_SESSION['id_usuario'];
+            } else {
+                // Intentar obtener primer usuario de la tabla usuarios
+                $stmtUser = $this->db->query("SELECT id_usuario FROM usuarios LIMIT 1");
+                $id_vendedor = $stmtUser ? $stmtUser->fetchColumn() : null;
             }
 
-            $productosRaw = $_POST['productos'] ?? [];
-            $productosProcesados = [];
-
-            foreach ($productosRaw as $item) {
-                $id_prod = filter_var($item['id_producto'] ?? null, FILTER_VALIDATE_INT);
-                $cant = filter_var($item['cantidad'] ?? null, FILTER_VALIDATE_INT);
-                $p_unit = filter_var($item['precio_unitario'] ?? null, FILTER_VALIDATE_FLOAT);
-
-                if ($id_prod && $cant && $cant > 0 && $p_unit !== false && $p_unit >= 0) {
-                    $productosProcesados[] = [
-                        'id_producto' => $id_prod,
-                        'cantidad' => $cant,
-                        'precio_unitario' => $p_unit
-                    ];
-                }
+            if (empty($id_vendedor)) {
+                die('No existe un usuario vendedor configurado en el sistema.');
             }
 
-            if (empty($productosProcesados)) {
-                $_SESSION['error'] = "Debe añadir al menos un producto válido al detalle.";
-                header("Location: index.php?vista=crear_pedido"); exit();
+            // Recibir arrays del carrito (creados por JavaScript)
+            $ids_productos = $_POST['producto_id'] ?? [];
+            $cantidades = $_POST['producto_cantidad'] ?? [];
+            $precios = $_POST['producto_precio'] ?? [];
+
+            if(empty($ids_productos)) {
+                die("El pedido no puede estar vacío. Agregue productos al carrito.");
             }
 
-            $pedido = new Pedido(null, $id_cliente, $id_vendedor, $fecha, $direccion, $total, 'Pendiente', $productosProcesados);
-            $_SESSION['mensaje'] = "Pedido maestro-detalle estructurado para la dirección: " . $pedido->obtenerDireccion();
-            header("Location: index.php?vista=crear_pedido"); exit();
+            // Armar el carrito y calcular total
+            $carrito = [];
+            $monto_total = 0;
+
+            for ($i = 0; $i < count($ids_productos); $i++) {
+                $subtotal = $cantidades[$i] * $precios[$i];
+                $monto_total += $subtotal;
+
+                $carrito[] = [
+                    'id_producto' => $ids_productos[$i],
+                    'cantidad' => $cantidades[$i],
+                    'precio' => $precios[$i]
+                ];
+            }
+
+            // Ejecutar Modelo
+            if ($this->pedido->crearPedidoTransaccional($id_cliente, $id_vendedor, $direccion, $monto_total, $carrito)) {
+                // Redirigir al inicio o a una lista de pedidos (ajusta según necesites)
+                header("Location: index.php?vista=home&msg=PedidoCreado");
+            } else {
+                echo "Error crítico al guardar la transacción.";
+            }
         }
     }
-}   
+}
+?>

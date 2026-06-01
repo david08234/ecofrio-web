@@ -1,23 +1,47 @@
 <?php
-declare(strict_types=1);
-require_once "modelos/rutaentrega.php";
+require_once "config/conexion.php";
+require_once "modelos/ruta.php";
+require_once "modelos/vehiculo.php";
 
 class RutaController {
-    public function registrar(): void {
-        if ($_SERVER["REQUEST_METHOD"] === "POST" && ($_POST['action'] ?? '') === 'guardar_ruta') {
-            
-            $conductor = filter_var($_POST['id_conductor'] ?? null, FILTER_VALIDATE_INT);
-            $vehiculo = filter_var($_POST['id_vehiculo'] ?? null, FILTER_VALIDATE_INT);
-            $fecha = isset($_POST['fecha_despacho']) ? trim($_POST['fecha_despacho']) : '';
+    private $db;
+    private $ruta;
 
-            if (!$conductor || !$vehiculo || $fecha === '') {
-                $_SESSION['error'] = "Todos los campos de la ruta son requeridos.";
-                header("Location: index.php?vista=crear_ruta"); exit();
+    public function __construct() {
+        $this->db = (new Conexion())->conectar();
+        $this->ruta = new Ruta($this->db);
+    }
+
+    public function mostrarAsignacion() {
+        // Cargar camiones disponibles
+        $modVehiculo = new Vehiculo($this->db);
+        $vehiculos = $modVehiculo->obtenerTodos();
+
+        // Cargar pedidos pendientes (id_ruta IS NULL o estado_pedido = 'Pendiente')
+        $query = "SELECT p.*, c.razon_social FROM pedidos p 
+                  INNER JOIN clientes c ON p.id_cliente = c.id_cliente 
+                  WHERE p.estado_pedido = 'Pendiente' ORDER BY p.id_pedido DESC";
+        $pedidosPendientes = $this->db->query($query)->fetchAll(PDO::FETCH_ASSOC);
+
+        require_once "vistas/crear_ruta.php";
+    }
+
+    public function procesarRuta() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $id_vehiculo = $_POST['id_vehiculo'];
+            $fecha_ruta = $_POST['fecha_ruta'];
+            $pedidos_seleccionados = $_POST['pedidos'] ?? [];
+
+            if (empty($pedidos_seleccionados)) {
+                die("Error: Debe seleccionar al menos un pedido para consolidar la ruta.");
             }
 
-            $ruta = new RutaEntrega(null, $conductor, $vehiculo, $fecha);
-            $_SESSION['mensaje'] = "Ruta logística para el " . $ruta->obtenerFecha() . " generada.";
-            header("Location: index.php?vista=crear_ruta"); exit();
+            if ($this->ruta->crearRutaTransaccional($id_vehiculo, $fecha_ruta, $pedidos_seleccionados)) {
+                header("Location: index.php?vista=home&msg=RutaCreada");
+            } else {
+                echo "Error crítico al procesar la distribución logística.";
+            }
         }
     }
 }
+?>
