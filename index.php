@@ -34,7 +34,7 @@ $rolUsuario = $_SESSION['rol_puesto'] ?? '';
 
 // Protege acciones administrativas contra usuarios no autorizados
 if (isset($_GET['action']) && in_array($_GET['action'], ['guardar_usuario', 'actualizar_usuario', 'eliminar_usuario']) && $rolUsuario !== 'Admin') {
-    header('Location: index.php?vista=home&msg=AccesoDenegado');
+    header('Location: index.php?vista=home&msg=AccAccessDenegado');
     exit();
 }
 
@@ -79,46 +79,99 @@ $vista = $_GET['vista'] ?? 'home';
     <meta charset="UTF-8">
     <title>EcoFrío - Gestión Logística</title>
     <link rel="stylesheet" href="assets/css/estilos.css">
+    <style>
+        /* Estilos complementarios para la barra de navegación del index */
+        header {
+            background: #ffffff;
+            padding: 16px 32px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        header h1 {
+            font-size: 20px;
+            color: #111827;
+            margin: 0;
+            font-weight: bold;
+        }
+        nav {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        nav a {
+            color: #4b5563;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        nav a:hover {
+            background: #e2e8f0;
+            color: #111827;
+        }
+        nav a.logout-link {
+            color: #ef4444;
+        }
+        nav a.logout-link:hover {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px 40px 20px;
+        }
+    </style>
 </head>
 <body>
     <header>
         <h1>EcoFrío S.R.L. &mdash; Sistema de Gestión</h1>
         <nav>
-            <a href="index.php?vista=home">Inicio</a> | 
+            <a href="index.php?vista=home">Inicio</a>
             <?php if ($rolUsuario === 'Admin'): ?>
-                <a href="index.php?vista=listar_usuarios">Usuarios</a> | 
+                <a href="index.php?vista=listar_usuarios">Usuarios</a>
             <?php endif; ?>
-            <a href="index.php?vista=listar_clientes">Clientes</a> | 
-            <a href="index.php?vista=listar_productos">Productos</a> | 
-            <a href="index.php?vista=registrar_vehiculo">Vehículos</a> | 
-            <a href="index.php?vista=crear_pedido">Pedidos</a> | 
-            <a href="index.php?vista=crear_ruta">Rutas</a> | 
+            <a href="index.php?vista=listar_clientes">Clientes</a>
+            <a href="index.php?vista=listar_productos">Productos</a>
+            <a href="index.php?vista=registrar_vehiculo">Vehículos</a>
+            <a href="index.php?vista=crear_pedido">Pedidos</a>
+            <a href="index.php?vista=crear_ruta">Rutas</a>
             <a href="index.php?vista=gestionar_entrega">Entregas</a>
-            <?php if (isset($_SESSION['id_usuario'])): ?> | <a href="logout.php">Cerrar sesión</a><?php endif; ?>
+            <?php if (isset($_SESSION['id_usuario'])): ?>
+                <a href="logout.php" class="logout-link">Cerrar sesión</a>
+            <?php endif; ?>
         </nav>
     </header>
-    <hr>
+
     <main>
         <?php
         switch ($vista) {
             // Módulo de Usuarios
             case 'listar_usuarios':
                 if ($rolUsuario !== 'Admin') {
-                    echo "<p style='color: red; font-weight: bold;'>Acceso denegado: solo administradores pueden gestionar usuarios.</p>";
+                    echo "<div class='alert alert-error'><b>Acceso denegado: solo administradores pueden gestionar usuarios.</b></div>";
                 } else {
                     $ctrlUsuario->listar();
                 }
                 break;
             case 'crear_usuario':
                 if ($rolUsuario !== 'Admin') {
-                    echo "<p style='color: red; font-weight: bold;'>Acceso denegado: solo administradores pueden crear usuarios.</p>";
+                    echo "<div class='alert alert-error'><b>Acceso denegado: solo administradores pueden crear usuarios.</b></div>";
                 } else {
                     $ctrlUsuario->mostrarCrear();
                 }
                 break;
             case 'editar_usuario':
                 if ($rolUsuario !== 'Admin') {
-                    echo "<p style='color: red; font-weight: bold;'>Acceso denegado: solo administradores pueden editar usuarios.</p>";
+                    echo "<div class='alert alert-error'><b>Acceso denegado: solo administradores pueden editar usuarios.</b></div>";
                 } else {
                     $ctrlUsuario->mostrarEditar($_GET['id'] ?? null);
                 }
@@ -147,16 +200,64 @@ $vista = $_GET['vista'] ?? 'home';
             // Panel de Control Principal (Dashboard)
             case 'home':
             default:
-                echo "<h2>Panel de Control Principal</h2><p>Bienvenido al sistema.</p>";
-                
-                // Alertas de confirmación visuales en el Dashboard
+                ?>
+                <div class="dashboard-welcome">
+                    <h2>¡Hola, <?php echo htmlspecialchars($nombreUsuario, ENT_QUOTES, 'UTF-8'); ?>! 👋</h2>
+                    <p>Bienvenido al panel de control de EcoFrío. Tu rol actual es: <strong><?php echo htmlspecialchars($rolUsuario, ENT_QUOTES, 'UTF-8'); ?></strong>.</p>
+                </div>
+
+                <?php
                 if (isset($_GET['msg'])) {
                     if ($_GET['msg'] === 'PedidoCreado') {
-                        echo "<p style='color: green; font-weight: bold;'>¡✅ Pedido y detalles registrados exitosamente mediante transacción PDO!</p>";
+                        echo "<div class='alert alert-info'><b>¡✅ Pedido y detalles registrados exitosamente mediante transacción PDO!</b></div>";
                     } elseif ($_GET['msg'] === 'RutaCreada') {
-                        echo "<p style='color: green; font-weight: bold;'>¡✅ Hoja de ruta consolidada con éxito. Los pedidos seleccionados han sido asignados al camión correspondiente!</p>";
+                        echo "<div class='alert alert-info'><b>¡✅ Hoja de ruta consolidada con éxito. Los pedidos seleccionados han sido asignados al camión correspondiente!</b></div>";
+                    } elseif ($_GET['msg'] === 'AccesoDenegado') {
+                        echo "<div class='alert alert-error'><b>⚠️ Acceso denegado: No cuenta con los privilegios administrativos requeridos.</b></div>";
                     }
                 }
+                ?>
+
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-icon blue">📦</div>
+                        <div class="kpi-details">
+                            <h3>Pedidos Hoy</h3>
+                            <p>0</p>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-icon green">🚛</div>
+                        <div class="kpi-details">
+                            <h3>Rutas Activas</h3>
+                            <p>0</p>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-icon orange">👥</div>
+                        <div class="kpi-details">
+                            <h3>Clientes</h3>
+                            <p>0</p>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-icon purple">❄️</div>
+                        <div class="kpi-details">
+                            <h3>Productos</h3>
+                            <p>0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <a href="index.php?vista=crear_pedido" class="btn btn-primary">➕ Nuevo Pedido</a>
+                    <a href="index.php?vista=crear_ruta" class="btn btn-primary" style="background: #15803d;">🗺️ Asignar Ruta</a>
+                    <a href="index.php?vista=listar_productos" class="btn btn-cancel">Ver Inventario</a>
+                </div>
+                <?php
                 break;
         }
         ?>

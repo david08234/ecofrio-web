@@ -1,12 +1,14 @@
-<div class="container">
-    <h2>Despacho — Planificación y Agrupación de Rutas</h2>
-    <p>Agrupar los pedidos comerciales pendientes en una jornada de transporte específica.</p>
+<div class="form-card">
+    <div class="form-card-header">
+        <h2>Despacho — Planificación y Agrupación de Rutas</h2>
+        <p>Agrupar los pedidos comerciales pendientes en una jornada de transporte específica.</p>
+    </div>
 
     <form action="index.php?action=guardar_ruta" method="POST">
-        <fieldset>
-            <legend>Asignación de Transporte</legend>
-            <p>
-                <label>Seleccionar Vehículo / Camión:</label><br>
+        
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Seleccionar Vehículo / Camión:</label>
                 <select name="id_vehiculo" required>
                     <option value="">-- Seleccione un Camión Disponible --</option>
                     <?php foreach ($vehiculos as $v): ?>
@@ -15,19 +17,22 @@
                         </option>
                     <?php endforeach; ?>
                 </select>
-            </p>
-            <p>
-                <label>Fecha Programada de Salida:</label><br>
-                <input type="date" name="fecha_ruta" value="<?php echo date('Y-m-d'); ?>" required>
-            </p>
-        </fieldset>
+            </div>
 
-        <br>
-        <h3>Pedidos Pendientes de Consolidación</h3>
-        <table border="1" cellpadding="8" cellspacing="0" width="100%">
+            <div class="form-group">
+                <label>Fecha Programada de Salida:</label>
+                <input type="date" name="fecha_ruta" value="<?php echo date('Y-m-d'); ?>" required>
+            </div>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #d1d5db; margin: 32px 0;">
+        
+        <h2 style="font-size: 20px; margin-bottom: 16px; color: #111827;">Pedidos Pendientes de Consolidación</h2>
+        
+        <table>
             <thead>
                 <tr>
-                    <th width="5%">Seleccionar</th>
+                    <th width="5%" style="text-align: center;">Seleccionar</th>
                     <th>ID Pedido</th>
                     <th>Cliente / Razón Social</th>
                     <th>Dirección de Destino</th>
@@ -37,14 +42,14 @@
             <tbody>
                 <?php if (empty($pedidosPendientes)): ?>
                     <tr>
-                        <td colspan="5" align="center" style="color: gray; padding: 20px;">
+                        <td colspan="5" style="text-align: center; color: gray; padding: 20px;">
                             No existen pedidos pendientes de distribución en este momento.
                         </td>
                     </tr>
                 <?php else: ?>
                     <?php foreach ($pedidosPendientes as $p): ?>
                     <tr>
-                        <td align="center">
+                        <td style="text-align: center;">
                             <input type="checkbox" name="pedidos[]" value="<?php echo $p['id_pedido']; ?>">
                         </td>
                         <td>#<?php echo $p['id_pedido']; ?></td>
@@ -57,9 +62,10 @@
             </tbody>
         </table>
 
-        <br>
-        <button type="submit" class="btn-primary" style="width: 100%; padding: 12px; font-size: 16px;">
-            Generar Hoja de Ruta y Despachar Unidades
-        </button>
+        <div class="form-actions" style="margin-top: 24px;">
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                Generar Hoja de Ruta y Despachar Unidades
+            </button>
+        </div>
     </form>
 </div>

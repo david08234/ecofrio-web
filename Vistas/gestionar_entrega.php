@@ -1,19 +1,21 @@
-<div class="container">
-    <h2>Despacho — Asignación de Pedidos a Choferes</h2>
-    <p>Asigna un pedido específico a un repartidor de la empresa controlando la exclusividad del transporte.</p>
+<div class="form-card">
+    <div class="form-card-header">
+        <h2>Despacho — Asignación de Pedidos a Choferes</h2>
+        <p>Asigna un pedido específico a un repartidor de la empresa controlando la exclusividad del transporte.</p>
+    </div>
 
     <?php if(isset($_SESSION['error'])): ?>
-        <div style="background-color: #f8d7da; color: #721c24; padding: 12px; border: 1px solid #f5c6cb; border-radius: 4px; margin-bottom: 15px;">
+        <div class="alert alert-error">
             <b>⚠️ Restricción Logística:</b> <?php echo htmlspecialchars($_SESSION['error'], ENT_QUOTES, 'UTF-8'); ?>
         </div>
         <?php unset($_SESSION['error']); ?>
     <?php endif; ?>
 
     <?php if(isset($_SESSION['mensaje'])): ?>
-        <div style="background-color: #d4edda; color: #155724; padding: 12px; border: 1px solid #c3e6cb; border-radius: 4px; margin-bottom: 15px;">
+        <div class="alert alert-info">
             <b>✅ Éxito:</b> <?php echo htmlspecialchars($_SESSION['mensaje'], ENT_QUOTES, 'UTF-8'); ?>
             <?php if(isset($_SESSION['ruta_asignada'])): ?>
-                <div style="margin-top: 10px; font-size: 0.95em; color: #155724;">
+                <div style="margin-top: 10px; font-size: 0.95em; border-top: 1px solid #cbd5e1; padding-top: 10px;">
                     Pedido asignado: <strong>#<?php echo intval($_SESSION['ruta_asignada']['id_pedido']); ?></strong><br>
                     Ruta creada: <strong>#<?php echo intval($_SESSION['ruta_asignada']['id_ruta']); ?></strong><br>
                     Vehículo: <strong><?php echo htmlspecialchars($_SESSION['ruta_asignada']['placa'], ENT_QUOTES, 'UTF-8'); ?></strong> — <?php echo htmlspecialchars($_SESSION['ruta_asignada']['modelo'], ENT_QUOTES, 'UTF-8'); ?>
@@ -24,10 +26,10 @@
     <?php endif; ?>
 
     <form action="index.php?action=guardar_entrega" method="POST">
-        <fieldset>
-            <legend>Asignar Operador de Reparto</legend>
-            <p>
-                <label>Chofer / Distribuidor Responsable:</label><br>
+        <div class="form-grid">
+            
+            <div class="form-group">
+                <label>Chofer / Distribuidor Responsable:</label>
                 <select name="id_chofer" required>
                     <option value="">-- Seleccione un Chofer --</option>
                     <?php foreach ($choferes as $ch): ?>
@@ -36,10 +38,10 @@
                         </option>
                     <?php endforeach; ?>
                 </select>
-            </p>
+            </div>
 
-            <p>
-                <label>Pedido Comercial a Entregar:</label><br>
+            <div class="form-group">
+                <label>Pedido Comercial a Entregar:</label>
                 <select name="id_pedido" required>
                     <option value="">-- Seleccione un Pedido Libre --</option>
                     <?php foreach ($pedidosDisponibles as $pe): ?>
@@ -48,15 +50,17 @@
                         </option>
                     <?php endforeach; ?>
                 </select>
-            </p>
+            </div>
 
-            <p>
-                <label>Observaciones de Despacho (Carga / Temperatura / Instrucciones):</label><br>
-                <textarea name="observaciones" rows="3" style="width: 100%;" placeholder="Ej. Llevar en compartimiento frío a -4°C..."></textarea>
-            </p>
-        </fieldset>
+            <div class="form-group full-width">
+                <label>Observaciones de Despacho (Carga / Temperatura / Instrucciones):</label>
+                <textarea name="observaciones" rows="3" placeholder="Ej. Llevar en compartimiento frío a -4°C..."></textarea>
+            </div>
 
-        <br>
-        <button type="submit" class="btn-primary" style="padding: 10px 20px;">Confirmar y Registrar Entrega Única</button>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Confirmar y Registrar Entrega Única</button>
+        </div>
     </form>
 </div>

@@ -2,28 +2,34 @@
 // Vista: Formulario transaccional para crear pedidos
 // Variables esperadas: $clientes (array), $productos (array)
 ?>
-<div class="container">
-    <h2>Registrar Pedido</h2>
+<div class="form-card">
+    <div class="form-card-header">
+        <h2>Registrar Pedido</h2>
+    </div>
 
     <form id="formPedido" action="index.php?action=guardar_pedido" method="POST">
-        <p>
-            <label>Cliente:</label><br>
-            <select name="id_cliente" required>
-                <option value="">-- Seleccione un cliente --</option>
-                <?php foreach ($clientes as $c): ?>
-                    <option value="<?php echo htmlspecialchars($c['id_cliente'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($c['razon_social'], ENT_QUOTES, 'UTF-8'); ?></option>
-                <?php endforeach; ?>
-            </select>
-        </p>
+        
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Cliente:</label>
+                <select name="id_cliente" required>
+                    <option value="">-- Seleccione un cliente --</option>
+                    <?php foreach ($clientes as $c): ?>
+                        <option value="<?php echo htmlspecialchars($c['id_cliente'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($c['razon_social'], ENT_QUOTES, 'UTF-8'); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
 
-        <p>
-            <label>Dirección de Entrega:</label><br>
-            <input type="text" name="direccion_entrega" required maxlength="255">
-        </p>
+            <div class="form-group full-width">
+                <label>Dirección de Entrega:</label>
+                <input type="text" name="direccion_entrega" required maxlength="255">
+            </div>
+        </div>
 
-        <hr>
-        <h3>Productos</h3>
-        <div>
+        <hr style="border: 0; border-top: 1px solid #d1d5db; margin: 24px 0;">
+        <h2 style="font-size: 20px; margin-bottom: 16px; color: #111827;">Productos</h2>
+        
+        <div class="form-group">
             <label>Producto:</label>
             <select id="selectProducto">
                 <option value="">-- Seleccione producto --</option>
@@ -31,13 +37,20 @@
                     <option value="<?php echo htmlspecialchars($p['id_producto'], ENT_QUOTES, 'UTF-8'); ?>|<?php echo htmlspecialchars($p['precio'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($p['nombre'] . ' — ' . $p['categoria'] . ' — $' . $p['precio'], ENT_QUOTES, 'UTF-8'); ?></option>
                 <?php endforeach; ?>
             </select>
-            <label style="margin-left:10px">Cantidad:</label>
-            <input type="number" id="cantidadProducto" min="1" value="1" style="width:80px">
-            <button type="button" id="btnAgregar">Agregar al carrito</button>
+        </div>
+        
+        <div class="form-action-row">
+            <div class="form-group" style="width: 150px; flex-shrink: 0;">
+                <label>Cantidad:</label>
+                <input type="number" id="cantidadProducto" min="1" value="1">
+            </div>
+            
+            <div class="form-group" style="flex-grow: 1;">
+                <button type="button" id="btnAgregar" class="btn btn-cancel" style="width: 100%;">Agregar al carrito</button>
+            </div>
         </div>
 
-        <br>
-        <table id="tablaCarrito" border="1" cellpadding="6" cellspacing="0" width="100%">
+        <table id="tablaCarrito">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -57,8 +70,9 @@
             </tfoot>
         </table>
 
-        <br>
-        <button type="submit">Guardar Pedido</button>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Guardar Pedido</button>
+        </div>
     </form>
 </div>
 
@@ -105,7 +119,7 @@ btnAgregar.addEventListener('click', () => {
         <td>${parseFloat(precio).toFixed(2)}</td>
         <td>${cantidad}</td>
         <td>${subtotal.toFixed(2)}</td>
-        <td><button type="button" class="btnRemove">Quitar</button></td>
+        <td><button type="button" class="btnRemove btn btn-sm btn-delete">Quitar</button></td>
     `;
 
     // Añadir inputs ocultos para envío

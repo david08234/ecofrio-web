@@ -1,29 +1,41 @@
-<div class="container">
-    <h2>Logística — Alta de Camiones de Distribución</h2>
+<div class="form-card">
+    <div class="form-card-header">
+        <h2>Logística — Alta de Camiones de Distribución</h2>
+    </div>
     
     <?php if(isset($_GET['msg']) && $_GET['msg'] === 'VehiculoCreado'): ?>
-        <p style="color: green;"><b>✅ ¡Vehículo incorporado a la flota operativa exitosamente!</b></p>
+        <div class="alert alert-info">
+            <b>¡Vehículo incorporado a la flota operativa exitosamente!</b>
+        </div>
     <?php endif; ?>
 
     <form action="index.php?action=guardar_vehiculo" method="POST">
-        <p>
-            <label>Número de Placa:</label><br>
-            <input type="text" name="placa" placeholder="Ej. 4521-XYZ" required maxlength="15">
-        </p>
-        <p>
-            <label>Modelo / Descripción:</label><br>
-            <input type="text" name="modelo" placeholder="Ej. Volvo FMX - Camión Frigorífico" required maxlength="100">
-        </p>
-        <p>
-            <label>Capacidad Máxima de Carga (Kg / Ton):</label><br>
-            <input type="number" step="0.01" name="capacidad_carga" placeholder="Ej. 5000" required>
-        </p>
-        <button type="submit" class="btn-primary">Dar de Alta Vehículo</button>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Número de Placa:</label>
+                <input type="text" name="placa" placeholder="Ej. 4521-XYZ" required maxlength="15">
+            </div>
+            
+            <div class="form-group">
+                <label>Capacidad Máxima de Carga (Kg / Ton):</label>
+                <input type="number" step="0.01" name="capacidad_carga" placeholder="Ej. 5000" required>
+            </div>
+
+            <div class="form-group full-width">
+                <label>Modelo / Descripción:</label>
+                <input type="text" name="modelo" placeholder="Ej. Volvo FMX - Camión Frigorífico" required maxlength="100">
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Dar de Alta Vehículo</button>
+        </div>
     </form>
 
-    <br><br>
-    <h3>Flota de Vehículos Registrados</h3>
-    <table border="1" cellpadding="8" cellspacing="0" width="100%">
+    <hr style="border: 0; border-top: 1px solid #d1d5db; margin: 32px 0;">
+    
+    <h2 style="font-size: 22px; margin-bottom: 16px;">Flota de Vehículos Registrados</h2>
+    <table>
         <thead>
             <tr>
                 <th>ID</th>
