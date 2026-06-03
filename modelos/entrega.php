@@ -54,5 +54,37 @@ class Entrega {
             return ['status' => false, 'mensaje' => $duplicateMsg ?: 'Error crítico en el servidor: ' . $e->getMessage()];
         }
     }
+
+    public function confirmarEntrega(int $idConductor, int $idPedido): array {
+        try {
+            $this->conn->beginTransaction();
+
+            $queryConfirmar = "UPDATE " . $this->tabla_detalle . " ed
+                INNER JOIN rutas_entrega r ON ed.id_ruta = r.id_ruta
+                SET ed.estado_entrega = 'Entregado Exitoso'
+                WHERE r.id_conductor = :conductor
+                  AND ed.id_pedido = :pedido
+                  AND ed.estado_entrega = 'En Ruta'";
+            $stmt = $this->conn->prepare($queryConfirmar);
+            $stmt->execute([
+                ':conductor' => $idConductor,
+                ':pedido' => $idPedido
+            ]);
+
+            if ($stmt->rowCount() === 0) {
+                $this->conn->rollBack();
+                return ['status' => false, 'mensaje' => 'No se encontró una entrega en ruta para este pedido o ya fue confirmada.'];
+            }
+
+            $queryPedido = "UPDATE pedidos SET estado_pedido = 'Entregado' WHERE id_pedido = ?";
+            $this->conn->prepare($queryPedido)->execute([$idPedido]);
+
+            $this->conn->commit();
+            return ['status' => true, 'mensaje' => 'Entrega del pedido #' . $idPedido . ' confirmada correctamente.'];
+        } catch (PDOException $e) {
+            $this->conn->rollBack();
+            return ['status' => false, 'mensaje' => 'Error al confirmar la entrega: ' . $e->getMessage()];
+        }
+    }
 }
 ?>

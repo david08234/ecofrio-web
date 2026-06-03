@@ -19,6 +19,7 @@ require_once "controladores/vehiculocontroller.php";
 require_once "controladores/pedidocontroller.php";
 require_once "controladores/rutacontroller.php";
 require_once "controladores/entregacontroller.php";
+require_once "controladores/reportcontroller.php";
 
 // Instanciación de controladores
 $ctrlUsuario  = new UsuarioController();
@@ -28,13 +29,73 @@ $ctrlPedido   = new PedidoController();
 $ctrlVehiculo = new VehiculoController(); // Controlador de Camiones
 $ctrlRuta     = new RutaController();     // Controlador de Despacho/Rutas
 $ctrlEntrega  = new EntregaController();  // Controlador de Entregas y Choferes
+$ctrlReporte  = new ReportController();  // Controlador de Reportes Administrativos
 
 $nombreUsuario = $_SESSION['nombre'] ?? '';
 $rolUsuario = $_SESSION['rol_puesto'] ?? '';
 
-// Protege acciones administrativas contra usuarios no autorizados
-if (isset($_GET['action']) && in_array($_GET['action'], ['guardar_usuario', 'actualizar_usuario', 'eliminar_usuario']) && $rolUsuario !== 'Admin') {
-    header('Location: index.php?vista=home&msg=AccAccessDenegado');
+$permisos = [
+    'Admin' => [
+        'vistas' => [
+            'home', 'listar_usuarios', 'crear_usuario', 'editar_usuario',
+            'listar_clientes', 'crear_cliente', 'editar_cliente',
+            'listar_productos', 'crear_producto', 'editar_producto',
+            'crear_pedido', 'registrar_vehiculo', 'crear_ruta', 'gestionar_entrega',
+            'reportes'
+        ],
+        'acciones' => [
+            'guardar_usuario', 'actualizar_usuario', 'eliminar_usuario',
+            'listar_usuarios', 'guardar_cliente', 'actualizar_cliente', 'eliminar_cliente',
+            'guardar_producto', 'actualizar_producto', 'eliminar_producto',
+            'guardar_pedido', 'guardar_vehiculo', 'guardar_ruta', 'guardar_entrega', 'confirmar_entrega',
+            'exportar_clientes', 'exportar_productos', 'exportar_ventas'
+        ]
+    ],
+    'Vendedor' => [
+        'vistas' => [
+            'home', 'listar_clientes', 'crear_cliente', 'editar_cliente',
+            'listar_productos',
+            'crear_pedido'
+        ],
+        'acciones' => [
+            'guardar_cliente', 'actualizar_cliente', 'eliminar_cliente',
+            'guardar_pedido'
+        ]
+    ],
+    'Almacen' => [
+        'vistas' => [
+            'home',
+            'listar_productos', 'crear_producto', 'editar_producto'
+        ],
+        'acciones' => [
+            'guardar_producto', 'actualizar_producto', 'eliminar_producto'
+        ]
+    ],
+    'Conductor' => [
+        'vistas' => ['home', 'gestionar_entrega'],
+        'acciones' => ['confirmar_entrega']
+    ],
+];
+
+function puedeAccederVista(string $rol, string $vista): bool {
+    global $permisos;
+    if ($rol === 'Admin') {
+        return true;
+    }
+    return isset($permisos[$rol]) && in_array($vista, $permisos[$rol]['vistas'], true);
+}
+
+function puedeEjecutarAccion(string $rol, string $accion): bool {
+    global $permisos;
+    if ($rol === 'Admin') {
+        return true;
+    }
+    return isset($permisos[$rol]) && in_array($accion, $permisos[$rol]['acciones'], true);
+}
+
+$accionSolicitada = $_GET['action'] ?? '';
+if ($accionSolicitada !== '' && !puedeEjecutarAccion($rolUsuario, $accionSolicitada)) {
+    header('Location: index.php?vista=home&msg=AccesoDenegado');
     exit();
 }
 
@@ -67,11 +128,21 @@ if (isset($_GET["action"])) {
 
         // Acciones de Entregas (Asignación Única a Choferes)
         case 'guardar_entrega':    $ctrlEntrega->asignar(); break;
+        case 'confirmar_entrega':  $ctrlEntrega->confirmarEntrega(); break;
+
+        // Acciones de Reportes Administrativos
+        case 'exportar_clientes':  $ctrlReporte->exportarClientes(); break;
+        case 'exportar_productos': $ctrlReporte->exportarProductos(); break;
+        case 'exportar_ventas':    $ctrlReporte->exportarVentas(); break;
     }
 }
 
 // 2. CARGA DE VISTAS (Enrutamiento Base)
 $vista = $_GET['vista'] ?? 'home';
+if (!puedeAccederVista($rolUsuario, $vista)) {
+    $_SESSION['error'] = 'Acceso denegado: tu rol no tiene permiso para este módulo.';
+    $vista = 'home';
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -139,12 +210,27 @@ $vista = $_GET['vista'] ?? 'home';
             <?php if ($rolUsuario === 'Admin'): ?>
                 <a href="index.php?vista=listar_usuarios">Usuarios</a>
             <?php endif; ?>
-            <a href="index.php?vista=listar_clientes">Clientes</a>
-            <a href="index.php?vista=listar_productos">Productos</a>
-            <a href="index.php?vista=registrar_vehiculo">Vehículos</a>
-            <a href="index.php?vista=crear_pedido">Pedidos</a>
-            <a href="index.php?vista=crear_ruta">Rutas</a>
-            <a href="index.php?vista=gestionar_entrega">Entregas</a>
+            <?php if (puedeAccederVista($rolUsuario, 'listar_clientes')): ?>
+                <a href="index.php?vista=listar_clientes">Clientes</a>
+            <?php endif; ?>
+            <?php if (puedeAccederVista($rolUsuario, 'listar_productos')): ?>
+                <a href="index.php?vista=listar_productos">Productos</a>
+            <?php endif; ?>
+            <?php if (puedeAccederVista($rolUsuario, 'reportes')): ?>
+                <a href="index.php?vista=reportes">Reportes</a>
+            <?php endif; ?>
+            <?php if (puedeAccederVista($rolUsuario, 'registrar_vehiculo')): ?>
+                <a href="index.php?vista=registrar_vehiculo">Vehículos</a>
+            <?php endif; ?>
+            <?php if (puedeAccederVista($rolUsuario, 'crear_pedido')): ?>
+                <a href="index.php?vista=crear_pedido">Pedidos</a>
+            <?php endif; ?>
+            <?php if (puedeAccederVista($rolUsuario, 'crear_ruta')): ?>
+                <a href="index.php?vista=crear_ruta">Rutas</a>
+            <?php endif; ?>
+            <?php if (puedeAccederVista($rolUsuario, 'gestionar_entrega')): ?>
+                <a href="index.php?vista=gestionar_entrega">Entregas</a>
+            <?php endif; ?>
             <?php if (isset($_SESSION['id_usuario'])): ?>
                 <a href="logout.php" class="logout-link">Cerrar sesión</a>
             <?php endif; ?>
@@ -194,6 +280,9 @@ $vista = $_GET['vista'] ?? 'home';
             // Módulo de Planificación de Distribución (Rutas)
             case 'crear_ruta':         $ctrlRuta->mostrarAsignacion(); break;
             
+            // Módulo de Reportes Administrativos
+            case 'reportes':           $ctrlReporte->mostrarReportes(); break;
+            
             // Módulo de Entregas (Gestión de Choferes y control UNIQUE)
             case 'gestionar_entrega':  $ctrlEntrega->mostrarGestion(); break;
             
@@ -216,6 +305,35 @@ $vista = $_GET['vista'] ?? 'home';
                         echo "<div class='alert alert-error'><b>⚠️ Acceso denegado: No cuenta con los privilegios administrativos requeridos.</b></div>";
                     }
                 }
+
+                // Obtener métricas del dashboard
+                require_once "config/conexion.php";
+                $conexion = new Conexion();
+                $db = $conexion->conectar();
+
+                // Pedidos de hoy
+                $queryPedidosHoy = "SELECT COUNT(*) as total FROM pedidos WHERE DATE(fecha_pedido) = CURDATE()";
+                $stmtPedidos = $db->query($queryPedidosHoy);
+                $totalPedidosHoy = $stmtPedidos->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+
+                // Rutas activas (rutas con entregas pendientes de confirmar)
+                $queryRutasActivas = "SELECT COUNT(DISTINCT r.id_ruta) as total 
+                                      FROM rutas_entrega r
+                                      INNER JOIN entregas_detalle ed ON r.id_ruta = ed.id_ruta
+                                      WHERE DATE(r.fecha_despacho) = CURDATE() 
+                                      AND ed.estado_entrega = 'En Ruta'";
+                $stmtRutas = $db->query($queryRutasActivas);
+                $totalRutasActivas = $stmtRutas->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+
+                // Total de clientes
+                $queryClientes = "SELECT COUNT(*) as total FROM clientes";
+                $stmtClientes = $db->query($queryClientes);
+                $totalClientes = $stmtClientes->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+
+                // Total de productos
+                $queryProductos = "SELECT COUNT(*) as total FROM productos";
+                $stmtProductos = $db->query($queryProductos);
+                $totalProductos = $stmtProductos->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
                 ?>
 
                 <div class="kpi-grid">
@@ -223,7 +341,7 @@ $vista = $_GET['vista'] ?? 'home';
                         <div class="kpi-icon blue">📦</div>
                         <div class="kpi-details">
                             <h3>Pedidos Hoy</h3>
-                            <p>0</p>
+                            <p><?php echo intval($totalPedidosHoy); ?></p>
                         </div>
                     </div>
 
@@ -231,7 +349,7 @@ $vista = $_GET['vista'] ?? 'home';
                         <div class="kpi-icon green">🚛</div>
                         <div class="kpi-details">
                             <h3>Rutas Activas</h3>
-                            <p>0</p>
+                            <p><?php echo intval($totalRutasActivas); ?></p>
                         </div>
                     </div>
 
@@ -239,7 +357,7 @@ $vista = $_GET['vista'] ?? 'home';
                         <div class="kpi-icon orange">👥</div>
                         <div class="kpi-details">
                             <h3>Clientes</h3>
-                            <p>0</p>
+                            <p><?php echo intval($totalClientes); ?></p>
                         </div>
                     </div>
 
@@ -247,7 +365,7 @@ $vista = $_GET['vista'] ?? 'home';
                         <div class="kpi-icon purple">❄️</div>
                         <div class="kpi-details">
                             <h3>Productos</h3>
-                            <p>0</p>
+                            <p><?php echo intval($totalProductos); ?></p>
                         </div>
                     </div>
                 </div>

@@ -25,7 +25,55 @@
         <?php unset($_SESSION['mensaje']); unset($_SESSION['ruta_asignada']); ?>
     <?php endif; ?>
 
-    <form action="index.php?action=guardar_entrega" method="POST">
+    <?php $rolUsuario = $_SESSION['rol_puesto'] ?? ''; ?>
+
+    <?php if ($rolUsuario === 'Conductor'): ?>
+        <div class="form-card">
+            <div class="form-card-header">
+                <h2>Entregas Asignadas</h2>
+                <p>Aquí aparecen las entregas que debes realizar y puedes confirmar cuando se completen.</p>
+            </div>
+
+            <?php if (empty($entregasAsignadas)): ?>
+                <div class="alert alert-info">No tienes entregas asignadas en este momento.</div>
+            <?php else: ?>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Pedido</th>
+                            <th>Cliente</th>
+                            <th>Destino</th>
+                            <th>Fecha Ruta</th>
+                            <th>Estado</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($entregasAsignadas as $entrega): ?>
+                            <tr>
+                                <td>#<?php echo intval($entrega['id_pedido']); ?></td>
+                                <td><?php echo htmlspecialchars($entrega['razon_social'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td><?php echo htmlspecialchars($entrega['direccion_entrega'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td><?php echo htmlspecialchars($entrega['fecha_despacho'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td><?php echo htmlspecialchars($entrega['estado_entrega'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td>
+                                    <?php if ($entrega['estado_entrega'] === 'En Ruta'): ?>
+                                        <form action="index.php?action=confirmar_entrega" method="POST" style="margin:0;">
+                                            <input type="hidden" name="id_pedido" value="<?php echo intval($entrega['id_pedido']); ?>">
+                                            <button type="submit" class="btn btn-primary btn-sm">Confirmar Entrega</button>
+                                        </form>
+                                    <?php else: ?>
+                                        Entrega registrada
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+        </div>
+    <?php else: ?>
+        <form action="index.php?action=guardar_entrega" method="POST">
         <div class="form-grid">
             
             <div class="form-group">
@@ -63,4 +111,5 @@
             <button type="submit" class="btn btn-primary">Confirmar y Registrar Entrega Única</button>
         </div>
     </form>
+    <?php endif; ?>
 </div>

@@ -13,7 +13,7 @@ class VehiculoController {
 
     public function listar() {
         $vehiculos = $this->vehiculo->obtenerTodos();
-        require_once "vistas/registrar_vehiculo.php";
+        require_once "Vistas/registrar_vehiculo.php";
     }
 
     public function registrar() {

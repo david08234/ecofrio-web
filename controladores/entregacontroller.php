@@ -12,11 +12,32 @@ class EntregaController {
     }
 
     public function mostrarGestion() {
+        $rolUsuario = $_SESSION['rol_puesto'] ?? '';
+
+        if ($rolUsuario === 'Conductor') {
+            $idChofer = (int)($_SESSION['id_usuario'] ?? 0);
+
+            $queryEntregas = "SELECT ed.id_pedido, p.direccion_entrega, p.monto_total, c.razon_social,
+                                     r.id_ruta, r.fecha_despacho, ed.estado_entrega, ed.incidencias
+                              FROM entregas_detalle ed
+                              INNER JOIN rutas_entrega r ON ed.id_ruta = r.id_ruta
+                              INNER JOIN pedidos p ON ed.id_pedido = p.id_pedido
+                              INNER JOIN clientes c ON p.id_cliente = c.id_cliente
+                              WHERE r.id_conductor = :conductor
+                              ORDER BY r.fecha_despacho DESC, ed.id_pedido DESC";
+            $stmtEntregas = $this->db->prepare($queryEntregas);
+            $stmtEntregas->execute([':conductor' => $idChofer]);
+            $entregasAsignadas = $stmtEntregas->fetchAll(PDO::FETCH_ASSOC);
+
+            require_once "vistas/gestionar_entrega.php";
+            return;
+        }
+
         // Obtener choferes (Usuarios con rol de chofer/repartidor)
         $queryChoferes = "SELECT id_usuario, nombre AS nombre_completo FROM usuarios WHERE rol_puesto = 'Conductor' ORDER BY nombre ASC";
         $choferes = $this->db->query($queryChoferes)->fetchAll(PDO::FETCH_ASSOC);
 
-        // Obtener pedidos que estén 'En Ruta' o listos para asignarse a un chofer individual
+        // Obtener pedidos que estén listos para asignarse a un chofer individual
         $queryPedidos = "SELECT p.id_pedido, c.razon_social, p.direccion_entrega 
                          FROM pedidos p
                          INNER JOIN clientes c ON p.id_cliente = c.id_cliente
@@ -82,6 +103,31 @@ class EntregaController {
             }
 
             header("Location: index.php?vista=gestionar_entrega");
+            exit();
+        }
+    }
+
+    public function confirmarEntrega() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id_pedido = (int)($_POST['id_pedido'] ?? 0);
+            $idChofer = (int)($_SESSION['id_usuario'] ?? 0);
+
+            if (empty($id_pedido)) {
+                $_SESSION['error'] = 'Debe seleccionar un pedido válido para confirmar la entrega.';
+                header('Location: index.php?vista=gestionar_entrega');
+                exit();
+            }
+
+            require_once "modelos/entrega.php";
+            $resultado = $this->entrega->confirmarEntrega($idChofer, $id_pedido);
+
+            if ($resultado['status']) {
+                $_SESSION['mensaje'] = $resultado['mensaje'];
+            } else {
+                $_SESSION['error'] = $resultado['mensaje'];
+            }
+
+            header('Location: index.php?vista=gestionar_entrega');
             exit();
         }
     }
