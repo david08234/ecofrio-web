@@ -32,7 +32,7 @@ $ctrlEntrega  = new EntregaController();  // Controlador de Entregas y Choferes
 $ctrlReporte  = new ReportController();  // Controlador de Reportes Administrativos
 
 $nombreUsuario = $_SESSION['nombre'] ?? '';
-$rolUsuario = $_SESSION['rol_puesto'] ?? '';
+$rolUsuario = trim((string)($_SESSION['rol_puesto'] ?? ''));
 
 $permisos = [
     'Admin' => [
@@ -79,7 +79,7 @@ $permisos = [
 
 function puedeAccederVista(string $rol, string $vista): bool {
     global $permisos;
-    if ($rol === 'Admin') {
+    if (strtolower(trim($rol)) === 'admin') {
         return true;
     }
     return isset($permisos[$rol]) && in_array($vista, $permisos[$rol]['vistas'], true);
@@ -87,7 +87,7 @@ function puedeAccederVista(string $rol, string $vista): bool {
 
 function puedeEjecutarAccion(string $rol, string $accion): bool {
     global $permisos;
-    if ($rol === 'Admin') {
+    if (strtolower(trim($rol)) === 'admin') {
         return true;
     }
     return isset($permisos[$rol]) && in_array($accion, $permisos[$rol]['acciones'], true);
@@ -150,6 +150,9 @@ if (!puedeAccederVista($rolUsuario, $vista)) {
     <meta charset="UTF-8">
     <title>EcoFrío - Gestión Logística</title>
     <link rel="stylesheet" href="assets/css/estilos.css?v=2">
+    <?php if ($vista === 'gestionar_entrega'): ?>
+        <link rel="stylesheet" href="assets/css/gestionar_entrega.css">
+    <?php endif; ?>
     <style>
         /* Estilos complementarios para la barra de navegación del index */
         header {

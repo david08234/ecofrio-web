@@ -1,7 +1,9 @@
-<div class="form-card" style="max-width: 700px;"> <div class="form-card-header">
-        <h2>Despacho — Asignación de Pedidos a Choferes</h2>
-        <p>Asigna un pedido específico a un repartidor de la empresa controlando la exclusividad del transporte.</p>
-    </div>
+<div class="gestionar-entrega-page">
+    <div class="form-card page-card">
+        <div class="form-card-header page-header">
+            <h2>Despacho — Asignación de Pedidos a Choferes</h2>
+            <p>Asigna un pedido específico a un repartidor de la empresa controlando la exclusividad del transporte.</p>
+        </div>
 
     <?php if(isset($_SESSION['error'])): ?>
         <div class="alert alert-error">
@@ -27,15 +29,16 @@
     <?php $rolUsuario = $_SESSION['rol_puesto'] ?? ''; ?>
 
     <?php if ($rolUsuario === 'Conductor'): ?>
-        <div class="form-card" style="box-shadow: none; padding: 0; margin: 0;"> <div class="form-card-header" style="margin-top: 20px;">
-                <h2 style="font-size: 20px;">Entregas Asignadas</h2>
+        <div class="form-card conductor-card">
+            <div class="form-card-header conductor-header">
+                <h2>Entregas Asignadas</h2>
                 <p>Aquí aparecen las entregas que debes realizar y puedes confirmar cuando se completen.</p>
             </div>
 
             <?php if (empty($entregasAsignadas)): ?>
                 <div class="alert alert-info">No tienes entregas asignadas en este momento.</div>
             <?php else: ?>
-                <div style="overflow-x: auto;">
+                <div class="table-responsive">
                     <table class="custom-table">
                         <thead>
                             <tr>
@@ -50,20 +53,20 @@
                         <tbody>
                             <?php foreach ($entregasAsignadas as $entrega): ?>
                                 <tr>
-                                    <td><strong>#<?php echo intval($entrega['id_pedido']); ?></strong></td>
-                                    <td><?php echo htmlspecialchars($entrega['razon_social'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                    <td><?php echo htmlspecialchars($entrega['direccion_entrega'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                    <td><?php echo htmlspecialchars($entrega['fecha_despacho'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                    <td>
+                                    <td data-label="Pedido"><span class="value">#<?php echo intval($entrega['id_pedido']); ?></span></td>
+                                    <td data-label="Cliente"><span class="value"><?php echo htmlspecialchars($entrega['razon_social'], ENT_QUOTES, 'UTF-8'); ?></span></td>
+                                    <td data-label="Destino"><span class="value"><?php echo htmlspecialchars($entrega['direccion_entrega'], ENT_QUOTES, 'UTF-8'); ?></span></td>
+                                    <td data-label="Fecha Ruta"><span class="value"><?php echo htmlspecialchars($entrega['fecha_despacho'], ENT_QUOTES, 'UTF-8'); ?></span></td>
+                                    <td data-label="Estado"><span class="value">
                                         <span class="badge <?php echo ($entrega['estado_entrega'] === 'En Ruta') ? 'badge-almacen' : 'badge-admin'; ?>">
                                             <?php echo htmlspecialchars($entrega['estado_entrega'], ENT_QUOTES, 'UTF-8'); ?>
                                         </span>
-                                    </td>
-                                    <td>
+                                    </span></td>
+                                    <td data-label="Acción"><span class="value action">
                                         <?php if ($entrega['estado_entrega'] === 'En Ruta'): ?>
                                             <form action="index.php?action=confirmar_entrega" method="POST" style="margin:0;">
                                                 <input type="hidden" name="id_pedido" value="<?php echo intval($entrega['id_pedido']); ?>">
-                                                <button type="submit" class="btn btn-primary" style="padding: 8px 12px; font-size: 13px;">Confirmar</button>
+                                                <button type="submit" class="btn btn-primary">Confirmar</button>
                                             </form>
                                         <?php else: ?>
                                             <span style="color: #15803d; font-weight: bold;">✔ Completado</span>
@@ -106,14 +109,15 @@
 
                 <div class="form-group full-width">
                     <label>Observaciones de Despacho (Carga / Temperatura / Instrucciones):</label>
-                    <textarea name="observaciones" rows="3" placeholder="Ej. Llevar en compartimiento frío a -4°C..." style="width: 100%; padding: 12px 14px; border: 1px solid #d1d5db; border-radius: 10px; font-family: inherit; font-size: 15px; box-sizing: border-box;"></textarea>
+                    <textarea name="observaciones" rows="3" placeholder="Ej. Llevar en compartimiento frío a -4°C..."></textarea>
                 </div>
 
             </div>
 
-            <div class="form-actions" style="margin-top: 10px;">
-                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 16px;">Confirmar y Registrar Entrega Única</button>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary full-width">Confirmar y Registrar Entrega Única</button>
             </div>
         </form>
     <?php endif; ?>
+    </div>
 </div>
