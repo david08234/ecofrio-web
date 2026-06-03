@@ -3,7 +3,7 @@ class Conexion {
     private $host = "localhost";
     private $db_name = "ecofrio_db";
     private $username = "root";
-    private $password = ""; // Laragon usa root sin contraseña por defecto
+    private $password = "123456789"; // Laragon usa root sin contraseña por defecto
     public $conn;
 
     public function conectar() {

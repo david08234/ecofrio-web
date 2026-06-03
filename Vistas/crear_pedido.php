@@ -2,8 +2,7 @@
 // Vista: Formulario transaccional para crear pedidos
 // Variables esperadas: $clientes (array), $productos (array)
 ?>
-<div class="form-card">
-    <div class="form-card-header">
+<div class="form-card" style="max-width: 800px;"> <div class="form-card-header">
         <h2>Registrar Pedido</h2>
     </div>
 
@@ -46,32 +45,36 @@
             </div>
             
             <div class="form-group" style="flex-grow: 1;">
-                <button type="button" id="btnAgregar" class="btn btn-cancel" style="width: 100%;">Agregar al carrito</button>
+                <button type="button" id="btnAgregar" class="btn btn-primary" style="width: 100%; background-color: #4b5563;">Agregar al carrito</button>
             </div>
         </div>
 
-        <table id="tablaCarrito">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Producto</th>
-                    <th>Precio Unitario</th>
-                    <th>Cantidad</th>
-                    <th>Subtotal</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="4" style="text-align:right"><b>Total:</b></td>
-                    <td colspan="2"><span id="totalCarrito">0.00</span></td>
-                </tr>
-            </tfoot>
-        </table>
+        <div style="overflow-x: auto; margin-bottom: 24px;">
+            <table id="tablaCarrito" class="custom-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Producto</th>
+                        <th>Precio Unitario</th>
+                        <th>Cantidad</th>
+                        <th>Subtotal</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4" style="text-align:right; padding: 12px 15px; font-size: 16px;"><b>Total:</b></td>
+                        <td colspan="2" style="padding: 12px 15px; font-size: 16px; font-weight: bold; color: #1d4ed8;">
+                            $<span id="totalCarrito">0.00</span>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
 
         <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Guardar Pedido</button>
+            <button type="submit" class="btn btn-primary" style="font-size: 18px; padding: 15px 30px;">Guardar Pedido</button>
         </div>
     </form>
 </div>
@@ -111,15 +114,15 @@ btnAgregar.addEventListener('click', () => {
     const nombre = selectProducto.options[selectProducto.selectedIndex].text;
     const subtotal = parseFloat(precio) * cantidad;
 
-    // Crear fila
+    // Crear fila (inyecté las clases de tus iconos de acción en el botón de quitar)
     const tr = document.createElement('tr');
     tr.innerHTML = `
         <td>${id}</td>
         <td>${nombre}</td>
-        <td>${parseFloat(precio).toFixed(2)}</td>
+        <td>$${parseFloat(precio).toFixed(2)}</td>
         <td>${cantidad}</td>
-        <td>${subtotal.toFixed(2)}</td>
-        <td><button type="button" class="btnRemove btn btn-sm btn-delete">Quitar</button></td>
+        <td><strong>$${subtotal.toFixed(2)}</strong></td>
+        <td><button type="button" class="btnRemove btn-icon btn-icon-delete" style="border: none; cursor: pointer;" title="Quitar">✖</button></td>
     `;
 
     // Añadir inputs ocultos para envío

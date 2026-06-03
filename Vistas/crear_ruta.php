@@ -1,5 +1,4 @@
-<div class="form-card">
-    <div class="form-card-header">
+<div class="form-card" style="max-width: 800px;"> <div class="form-card-header">
         <h2>Despacho — Planificación y Agrupación de Rutas</h2>
         <p>Agrupar los pedidos comerciales pendientes en una jornada de transporte específica.</p>
     </div>
@@ -29,41 +28,43 @@
         
         <h2 style="font-size: 20px; margin-bottom: 16px; color: #111827;">Pedidos Pendientes de Consolidación</h2>
         
-        <table>
-            <thead>
-                <tr>
-                    <th width="5%" style="text-align: center;">Seleccionar</th>
-                    <th>ID Pedido</th>
-                    <th>Cliente / Razón Social</th>
-                    <th>Dirección de Destino</th>
-                    <th>Monto Total ($)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (empty($pedidosPendientes)): ?>
+        <div style="overflow-x: auto; margin-bottom: 24px;">
+            <table class="custom-table">
+                <thead>
                     <tr>
-                        <td colspan="5" style="text-align: center; color: gray; padding: 20px;">
-                            No existen pedidos pendientes de distribución en este momento.
-                        </td>
+                        <th width="10%" style="text-align: center;">Seleccionar</th>
+                        <th width="15%">ID Pedido</th>
+                        <th>Cliente / Razón Social</th>
+                        <th>Dirección de Destino</th>
+                        <th width="15%">Monto Total ($)</th>
                     </tr>
-                <?php else: ?>
-                    <?php foreach ($pedidosPendientes as $p): ?>
-                    <tr>
-                        <td style="text-align: center;">
-                            <input type="checkbox" name="pedidos[]" value="<?php echo $p['id_pedido']; ?>">
-                        </td>
-                        <td>#<?php echo $p['id_pedido']; ?></td>
-                        <td><?php echo htmlspecialchars($p['razon_social'], ENT_QUOTES, 'UTF-8'); ?></td>
-                        <td><?php echo htmlspecialchars($p['direccion_entrega'], ENT_QUOTES, 'UTF-8'); ?></td>
-                        <td>$<?php echo number_format((float)$p['monto_total'], 2); ?></td>
-                    </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <?php if (empty($pedidosPendientes)): ?>
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: gray; padding: 30px;">
+                                No existen pedidos pendientes de distribución en este momento.
+                            </td>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach ($pedidosPendientes as $p): ?>
+                        <tr>
+                            <td style="text-align: center;">
+                                <input type="checkbox" name="pedidos[]" value="<?php echo $p['id_pedido']; ?>" style="width: 18px; height: 18px; cursor: pointer;">
+                            </td>
+                            <td><strong>#<?php echo $p['id_pedido']; ?></strong></td>
+                            <td><?php echo htmlspecialchars($p['razon_social'], ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td><?php echo htmlspecialchars($p['direccion_entrega'], ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td>$<?php echo number_format((float)$p['monto_total'], 2); ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
 
         <div class="form-actions" style="margin-top: 24px;">
-            <button type="submit" class="btn btn-primary" style="width: 100%;">
+            <button type="submit" class="btn btn-primary" style="width: 100%; font-size: 16px; padding: 14px;">
                 Generar Hoja de Ruta y Despachar Unidades
             </button>
         </div>

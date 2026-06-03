@@ -149,7 +149,7 @@ if (!puedeAccederVista($rolUsuario, $vista)) {
 <head>
     <meta charset="UTF-8">
     <title>EcoFrío - Gestión Logística</title>
-    <link rel="stylesheet" href="assets/css/estilos.css">
+    <link rel="stylesheet" href="assets/css/estilos.css?v=2">
     <style>
         /* Estilos complementarios para la barra de navegación del index */
         header {
@@ -195,10 +195,10 @@ if (!puedeAccederVista($rolUsuario, $vista)) {
             background: #fee2e2;
             color: #dc2626;
         }
-        main {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px 40px 20px;
+     main {
+            max-width: 100%; /* Esto libera el ancho total de la pantalla */
+            margin: 0;
+            padding: 20px;
         }
     </style>
 </head>
@@ -298,11 +298,11 @@ if (!puedeAccederVista($rolUsuario, $vista)) {
                 <?php
                 if (isset($_GET['msg'])) {
                     if ($_GET['msg'] === 'PedidoCreado') {
-                        echo "<div class='alert alert-info'><b>¡✅ Pedido y detalles registrados exitosamente mediante transacción PDO!</b></div>";
+                        echo "<div class='alert alert-info'><b>✅ Pedido y detalles registrados exitosamente </b></div>";
                     } elseif ($_GET['msg'] === 'RutaCreada') {
-                        echo "<div class='alert alert-info'><b>¡✅ Hoja de ruta consolidada con éxito. Los pedidos seleccionados han sido asignados al camión correspondiente!</b></div>";
+                        echo "<div class='alert alert-info'><b>✅ Hoja de ruta consolidada con éxito. Los pedidos seleccionados han sido asignados al camión correspondiente</b></div>";
                     } elseif ($_GET['msg'] === 'AccesoDenegado') {
-                        echo "<div class='alert alert-error'><b>⚠️ Acceso denegado: No cuenta con los privilegios administrativos requeridos.</b></div>";
+                        echo "<div class='alert alert-error'><b>⚠️ Acceso denegado: No cuenta con los privilegios administrativos requeridos</b></div>";
                     }
                 }
 
@@ -373,7 +373,7 @@ if (!puedeAccederVista($rolUsuario, $vista)) {
                 <div style="display: flex; gap: 15px; flex-wrap: wrap;">
                     <a href="index.php?vista=crear_pedido" class="btn btn-primary">➕ Nuevo Pedido</a>
                     <a href="index.php?vista=crear_ruta" class="btn btn-primary" style="background: #15803d;">🗺️ Asignar Ruta</a>
-                    <a href="index.php?vista=listar_productos" class="btn btn-cancel">Ver Inventario</a>
+                   <a href="index.php?vista=listar_productos" class="btn btn-primary">Ver Inventario</a>
                 </div>
                 <?php
                 break;

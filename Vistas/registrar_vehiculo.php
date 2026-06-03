@@ -35,24 +35,27 @@
     <hr style="border: 0; border-top: 1px solid #d1d5db; margin: 32px 0;">
     
     <h2 style="font-size: 22px; margin-bottom: 16px;">Flota de Vehículos Registrados</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Placa</th>
-                <th>Modelo / Tipo</th>
-                <th>Capacidad Carga</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($vehiculos as $v): ?>
-            <tr>
-                <td><?php echo $v['id_vehiculo']; ?></td>
-                <td><strong><?php echo $v['placa']; ?></strong></td>
-                <td><?php echo $v['modelo']; ?></td>
-                <td><?php echo $v['capacidad_carga']; ?> Kg</td>
-            </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+    
+    <div style="overflow-x: auto;">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Placa</th>
+                    <th>Modelo / Tipo</th>
+                    <th>Capacidad Carga</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($vehiculos as $v): ?>
+                <tr>
+                    <td><?php echo $v['id_vehiculo']; ?></td>
+                    <td><strong><?php echo $v['placa']; ?></strong></td>
+                    <td><?php echo $v['modelo']; ?></td>
+                    <td><?php echo $v['capacidad_carga']; ?> Kg</td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
 </div>

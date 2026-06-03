@@ -45,21 +45,25 @@ body {
     font-size: 15px;
 }
 
-.form-group input {
+/* Aplicamos el diseño base tanto a inputs como a selects */
+.form-group input, 
+.form-group select {
     width: 100%;
     padding: 12px 14px;
     border: 1px solid #d1d5db;
     border-radius: 10px;
     font-size: 15px;
     box-sizing: border-box;
+    font-family: inherit;
 }
 
-.form-group input:focus {
+/* Aplicamos el brillo azul al hacer clic tanto a inputs como a selects */
+.form-group input:focus, 
+.form-group select:focus {
     border-color: #1d4ed8;
     outline: none;
     box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15);
 }
-
 /* Sección de botones (Alineados a la derecha) */
 .form-actions {
     display: flex;

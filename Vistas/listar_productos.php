@@ -1,4 +1,4 @@
-<div class="form-card" style="max-width: 100%;">
+<div class="form-card" style="max-width: 100%; margin: 0;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h2 style="margin: 0; color: #111827;">Inventario - Catálogo de Productos</h2>
         <a href="index.php?vista=crear_producto" class="btn btn-primary">Registrar Nuevo Producto</a>
