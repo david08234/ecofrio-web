@@ -1,1 +1,0 @@
-2026-05-29 23:25:28 - SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`ecofrio_db`.`pedidos`, CONSTRAINT `fk_pedidos_usuarios` FOREIGN KEY (`id_vendedor`) REFERENCES `usuarios` (`id_usuario`) ON DELETE RESTRICT ON UPDATE CASCADE)

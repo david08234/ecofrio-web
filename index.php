@@ -269,10 +269,12 @@ if (!puedeAccederVista($rolUsuario, $vista)) {
             // Módulo de Clientes
             case 'listar_clientes':    $ctrlCliente->listar(); break;
             case 'crear_cliente':      include "vistas/crear_cliente.php"; break;
+            case 'editar_cliente':     $ctrlCliente->mostrarEditar($_GET['id'] ?? null); break;
             
             // Módulo de Productos (Inventario)
             case 'listar_productos':   $ctrlProducto->listar(); break;
             case 'crear_producto':     include "vistas/crear_producto.php"; break;
+            case 'editar_producto':    $ctrlProducto->mostrarEditar($_GET['id'] ?? null); break;
             
             // Módulo Transaccional de Pedidos
             case 'crear_pedido':       $ctrlPedido->mostrarCrear(); break;
